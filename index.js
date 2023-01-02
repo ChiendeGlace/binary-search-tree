@@ -108,8 +108,67 @@ const treeFactory = (array) => {
         return root;
     };
 
+    const findNode = (root, data) => {
+        if (root == null) {
+            return 'Tree is empty or wrong value';
+        }
+        if (data == root.data) {
+            return root;
+        }
+        if (data > root.data) {
+            root.right = findNode(root.right, data);
+            return root.right;
+        }
+        if (data < root.data) {
+            console.log(root);
+            root.left = findNode(root.left, data);
+            return root.left;
+        }
+    };
+
+    const levelOrder = () => {
+        const arr = [];
+        const queue = [];
+        queue.push(root);
+        console.log();
+        while (queue.length > 0) {
+            arr.push(queue[0].data);
+            if (queue[0].left !== null) {
+                queue.push(queue[0].left);
+            }
+            if (queue[0].right !== null) {
+                queue.push(queue[0].right);
+            }
+            queue.shift();
+        }
+        return arr;
+    };
+
+    const levelOrderRecursive = (arr = [], queue = [], treeRoot = root) => {
+        if (treeRoot == null) return;
+
+        arr.push(treeRoot.data);
+
+        queue.push(treeRoot.left);
+        queue.push(treeRoot.right);
+
+        while (queue.length > 0) {
+            const newRoot = queue[0];
+            queue.shift();
+            levelOrderRecursive(arr, queue, newRoot);
+        }
+        return arr;
+    };
+
     root = buildTree(sortedUnique, 0, sortedUnique.length - 1);
-    return { root, insert, deleteNode };
+    return {
+        root,
+        insert,
+        deleteNode,
+        findNode,
+        levelOrder,
+        levelOrderRecursive,
+    };
 };
 
 const newBinaryTree = treeFactory([
@@ -118,4 +177,4 @@ const newBinaryTree = treeFactory([
 
 newBinaryTree.insert(newBinaryTree.root, 50);
 newBinaryTree.insert(newBinaryTree.root, 320);
-console.log(newBinaryTree);
+console.log(newBinaryTree.levelOrderRecursive());
