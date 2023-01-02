@@ -43,40 +43,79 @@ const treeFactory = (array) => {
     root = null;
     const sorted = mergeSort(array);
     const sortedUnique = removeDuplicates(sorted);
+    console.log(sortedUnique);
     const buildTree = (array, start = 0, end) => {
         if (start > end) {
             return null;
         }
         let mid = parseInt((start + end) / 2);
         let node = nodeFactory(array[mid]);
+        if (root == null) {
+            root = node;
+        }
         node.left = buildTree(array, start, mid - 1);
         node.right = buildTree(array, mid + 1, end);
         return node;
     };
 
-    root = buildTree(sortedUnique, 0, sortedUnique.length - 1);
-    
-    const prettyPrint = (node, prefix = '', isLeft = true) => {
-        if (node.right !== null) {
-            prettyPrint(
-                node.right,
-                `${prefix}${isLeft ? '│   ' : '    '}`,
-                false
-            );
+    const insert = (root, data) => {
+        if (root == null) {
+            root = nodeFactory(data);
+            return root;
         }
-        console.log(`${prefix}${isLeft ? '└── ' : '┌── '}${node.data}`);
-        if (node.left !== null) {
-            prettyPrint(
-                node.left,
-                `${prefix}${isLeft ? '    ' : '│   '}`,
-                true
-            );
+        if (data > root.data) {
+            root.right = insert(root.right, data);
+        } else if (data < root.data) {
+            root.left = insert(root.left, data);
+        } else {
+            return null;
         }
+        return root;
     };
-    prettyPrint(root);
-    return { root };
+
+    const deleteNode = (root, data) => {
+        if (root == null) {
+            return null;
+        }
+        if (root.data == data) {
+            if (root.left == null && root.right == null) {
+                root = null;
+                return root;
+            }
+            if (root.left == null || root.right == null) {
+                if (root.left == null) {
+                    root = root.right;
+                    return root;
+                } else {
+                    root = root.left;
+                    return root;
+                }
+            }
+            let rightSide = root.right;
+            while (rightSide.left) {
+                rightSide = rightSide.left;
+            }
+            root.data = rightSide.data;
+            root.right = deleteNode(root.right, rightSide.data);
+            return root;
+        } else {
+            if (data > root.data) {
+                root.right = deleteNode(root.right, data);
+            } else if (data < root.data) {
+                root.left = deleteNode(root.left, data);
+            }
+        }
+        return root;
+    };
+
+    root = buildTree(sortedUnique, 0, sortedUnique.length - 1);
+    return { root, insert, deleteNode };
 };
 
 const newBinaryTree = treeFactory([
     1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324,
 ]);
+
+newBinaryTree.insert(newBinaryTree.root, 50);
+newBinaryTree.insert(newBinaryTree.root, 320);
+console.log(newBinaryTree);
